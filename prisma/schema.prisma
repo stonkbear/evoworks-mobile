@@ -1,0 +1,753 @@
+// Echo Marketplace - Complete Prisma Schema
+// Production-ready AI Agent Marketplace Database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// CORE IDENTITY MODELS
+// ============================================================================
+
+model Agent {
+  id                String   @id @default(cuid())
+  did               String   @unique // Decentralized Identifier
+  publicKey         String
+  platform          Platform
+  platformAgentId   String?  // ID on external platform (n8n workflow ID, etc.)
+  platformConfig    Json?    // Platform-specific configuration
+  name              String
+  description       String?  @db.Text
+  capabilities      Json     // { skills: [], tools: [], languages: [] }
+  endpoints         Json     // { webhook: "...", api: "..." }
+  region            String?  // Data residency region
+  
+  // Ownership
+  ownerUserId       String
+  owner             User     @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  orgId             String?
+  organization      Organization? @relation(fields: [orgId], references: [id])
+  
+  // Status
+  status            AgentStatus @default(ACTIVE)
+  lastSeenAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  credentials       VerifiableCredential[]
+  reputationScores  ReputationScore[]
+  stakePositions    StakePosition[]
+  bids              Bid[]
+  taskAssignments   TaskAssignment[]
+  attestations      Attestation[]
+  listing           AgentListing?
+  reviews           AgentReview[]
+  payouts           Payout[]
+  policyDecisions   PolicyDecision[]
+  auditEvents       AuditEvent[]
+  
+  @@index([did])
+  @@index([platform])
+  @@index([status])
+  @@index([ownerUserId])
+  @@index([orgId])
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  passwordHash      String?  // Nullable for SSO-only users
+  name              String?
+  role              UserRole @default(BUYER)
+  
+  // Optional DID for users
+  did               String?  @unique
+  publicKey         String?
+  
+  // Organization membership
+  organizationId    String?
+  
+  // SCIM provisioning
+  scimId            String?  @unique
+  scimActive        Boolean? @default(true)
+  metadata          Json?    // Additional user metadata
+  
+  emailVerified     DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  ownedAgents       Agent[]
+  createdTasks      Task[]
+  attestations      Attestation[]
+  reviews           AgentReview[]
+  orgMemberships    OrganizationMember[]
+  createdPolicies   PolicyPack[]
+  approvalRequests  ApprovalRequest[] @relation("ApprovalRequester")
+  approvals         ApprovalRequest[] @relation("Approver")
+  auditEvents       AuditEvent[]
+  
+  @@index([email])
+  @@index([role])
+}
+
+model Organization {
+  id                    String   @id @default(cuid())
+  name                  String
+  did                   String   @unique
+  publicKey             String
+  industry              String?
+  
+  // Enterprise Configuration
+  ssoEnabled            Boolean? @default(false)
+  ssoProvider           String?  // okta, azure, google, onelogin, custom
+  ssoConfig             Json?    // SAML metadata, SCIM endpoints
+  scimToken             String?  // Hashed SCIM bearer token
+  scimTokenCreatedAt    DateTime?
+  rbacConfig            Json?    // Custom role definitions
+  billingConfig         Json?    // Cost centers, budget caps
+  dataRegion            String?  // Primary data region
+  dataResidencyRegions  String[] // ["EU", "US"]
+  encryptionKeyId       String?  // Customer-managed encryption key ID
+  metadata              Json?    // General purpose metadata (roles, encryption keys, groups, etc.)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // Relations
+  agents                Agent[]
+  members               OrganizationMember[]
+  tasks                 Task[]
+  policyPacks           PolicyPack[]
+  approvalRequests      ApprovalRequest[]
+  
+  @@index([did])
+}
+
+model OrganizationMember {
+  id              String   @id @default(cuid())
+  orgId           String
+  organization    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role            OrgRole
+  permissions     String[] // Granular permissions
+  
+  joinedAt        DateTime @default(now())
+  
+  @@unique([orgId, userId])
+  @@index([orgId])
+  @@index([userId])
+}
+
+// ============================================================================
+// REPUTATION & TRUST MODELS
+// ============================================================================
+
+model VerifiableCredential {
+  id          String   @id @default(cuid())
+  agentId     String
+  agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  issuerDid   String   // Who issued this credential
+  type        CredentialType
+  claims      Json     // The actual credential claims
+  
+  issuedAt    DateTime @default(now())
+  expiresAt   DateTime?
+  revoked     Boolean  @default(false)
+  revokedAt   DateTime?
+  signature   String   // Cryptographic proof
+  
+  @@index([agentId])
+  @@index([type])
+  @@index([revoked])
+}
+
+model ReputationScore {
+  id                String   @id @default(cuid())
+  agentId           String
+  agent             Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  // Overall & Dimensional Scores (0-100)
+  overallScore      Float
+  performanceScore  Float
+  complianceScore   Float
+  stakeScore        Float
+  verificationScore Float
+  
+  dimensions        Json     // Additional custom dimensions
+  period            ScorePeriod
+  calculatedAt      DateTime @default(now())
+  
+  @@unique([agentId, period])
+  @@index([agentId])
+  @@index([overallScore])
+}
+
+model StakePosition {
+  id              String   @id @default(cuid())
+  agentId         String
+  agent           Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  amount          Float
+  currency        String   @default("USD")
+  
+  lockedAt        DateTime @default(now())
+  unlockableAt    DateTime
+  status          StakeStatus @default(ACTIVE)
+  
+  slashHistory    Json     // Array of slash events
+  
+  @@index([agentId])
+  @@index([status])
+}
+
+model Attestation {
+  id                String   @id @default(cuid())
+  agentId           String
+  agent             Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  attestorUserId    String
+  attestor          User     @relation(fields: [attestorUserId], references: [id], onDelete: Cascade)
+  
+  category          String   // "reliability", "communication", "quality"
+  score             Int      // 1-5
+  comment           String?  @db.Text
+  verificationProof Json?    // Optional cryptographic proof
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([agentId])
+  @@index([attestorUserId])
+}
+
+// ============================================================================
+// AUCTION & TASK MODELS
+// ============================================================================
+
+model Task {
+  id                  String   @id @default(cuid())
+  
+  buyerUserId         String
+  buyer               User     @relation(fields: [buyerUserId], references: [id], onDelete: Cascade)
+  orgId               String?
+  organization        Organization? @relation(fields: [orgId], references: [id])
+  
+  title               String
+  description         String   @db.Text
+  requirements        Json     // { skills: [], dataClass: "PII", region: "EU" }
+  
+  maxBudget           Float
+  currency            String   @default("USD")
+  
+  // Auction Configuration
+  auctionType         AuctionType
+  auctionEndsAt       DateTime?
+  
+  policyConstraints   Json?    // Custom policy rules for this task
+  status              TaskStatus @default(DRAFT)
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  // Relations
+  bids                Bid[]
+  assignment          TaskAssignment?
+  policyDecisions     PolicyDecision[]
+  auditEvents         AuditEvent[]
+  
+  @@index([status])
+  @@index([auctionEndsAt])
+  @@index([buyerUserId])
+  @@index([orgId])
+}
+
+model Bid {
+  id              String   @id @default(cuid())
+  taskId          String
+  task            Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  agentId         String
+  agent           Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  amount          Float
+  currency        String   @default("USD")
+  
+  // For sealed-bid auctions
+  encryptedBid    Json?    // Encrypted bid details
+  revealedAt      DateTime?
+  
+  status          BidStatus @default(PENDING)
+  metadata        Json?    // Additional bid metadata
+  
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  assignment      TaskAssignment?
+  
+  @@index([taskId])
+  @@index([agentId])
+  @@index([status])
+}
+
+model TaskAssignment {
+  id              String   @id @default(cuid())
+  taskId          String   @unique
+  task            Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  agentId         String
+  agent           Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  bidId           String?  @unique
+  bid             Bid?     @relation(fields: [bidId], references: [id])
+  
+  agreedPrice     Float
+  currency        String   @default("USD")
+  escrowTxId      String?
+  
+  status          AssignmentStatus @default(ASSIGNED)
+  
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  slaDueAt        DateTime?
+  
+  // Relations
+  execution       Execution?
+  escrow          EscrowAccount?
+  payment         Payment?
+  dispute         Dispute?
+  review          AgentReview?
+  
+  @@index([agentId])
+  @@index([status])
+}
+
+model Execution {
+  id                    String   @id @default(cuid())
+  taskAssignmentId      String   @unique
+  taskAssignment        TaskAssignment @relation(fields: [taskAssignmentId], references: [id], onDelete: Cascade)
+  
+  platformExecutionId   String?  // External platform's execution ID
+  traceId               String?  // OpenTelemetry trace ID
+  
+  inputHash             String   // Hash of input data
+  outputHash            String?  // Hash of output data
+  
+  startedAt             DateTime @default(now())
+  completedAt           DateTime?
+  status                ExecutionStatus @default(RUNNING)
+  
+  errorLog              Json?
+  metering              Json?    // { tokens: 1500, apiCalls: 23, duration: 45.2 }
+  
+  @@index([status])
+  @@index([traceId])
+}
+
+// ============================================================================
+// POLICY & GOVERNANCE MODELS
+// ============================================================================
+
+model PolicyPack {
+  id              String   @id @default(cuid())
+  orgId           String?
+  organization    Organization? @relation(fields: [orgId], references: [id])
+  
+  name            String
+  version         String
+  rules           Json     // Rego policy rules
+  
+  createdAt       DateTime @default(now())
+  createdByUserId String
+  createdBy       User     @relation(fields: [createdByUserId], references: [id])
+  
+  // Relations
+  decisions       PolicyDecision[]
+  
+  @@index([orgId])
+}
+
+model PolicyDecision {
+  id              String   @id @default(cuid())
+  
+  taskId          String?
+  task            Task?    @relation(fields: [taskId], references: [id])
+  
+  agentId         String?
+  agent           Agent?   @relation(fields: [agentId], references: [id])
+  
+  policyPackId    String
+  policyPack      PolicyPack @relation(fields: [policyPackId], references: [id])
+  
+  decision        PolicyDecisionType
+  reasonCodes     String[] // ["data_residency_violation", "insufficient_trust"]
+  context         Json     // Full evaluation context
+  
+  decidedAt       DateTime @default(now())
+  
+  @@index([taskId])
+  @@index([agentId])
+  @@index([policyPackId])
+  @@index([decision])
+}
+
+model ApprovalRequest {
+  id              String   @id @default(cuid())
+  orgId           String
+  organization    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  
+  type            ApprovalType
+  payload         Json     // Request details
+  
+  requesterId     String
+  requester       User     @relation("ApprovalRequester", fields: [requesterId], references: [id])
+  
+  approverId      String?
+  approver        User?    @relation("Approver", fields: [approverId], references: [id])
+  
+  status          ApprovalStatus @default(PENDING)
+  decision        String?
+  reason          String?  @db.Text
+  
+  createdAt       DateTime @default(now())
+  decidedAt       DateTime?
+  
+  @@index([orgId])
+  @@index([status])
+}
+
+// ============================================================================
+// BILLING & SETTLEMENT MODELS
+// ============================================================================
+
+model EscrowAccount {
+  id                String   @id @default(cuid())
+  taskAssignmentId  String   @unique
+  taskAssignment    TaskAssignment @relation(fields: [taskAssignmentId], references: [id], onDelete: Cascade)
+  
+  amount            Float
+  currency          String   @default("USD")
+  
+  heldAt            DateTime @default(now())
+  releasedAt        DateTime?
+  status            EscrowStatus @default(HELD)
+  
+  @@index([status])
+}
+
+model Payment {
+  id                    String   @id @default(cuid())
+  taskAssignmentId      String   @unique
+  taskAssignment        TaskAssignment @relation(fields: [taskAssignmentId], references: [id], onDelete: Cascade)
+  
+  agentId               String
+  
+  amount                Float
+  currency              String   @default("USD")
+  
+  stripePaymentIntentId String?
+  status                PaymentStatus @default(PENDING)
+  
+  platformFee           Float
+  creatorEarnings       Float
+  
+  paidAt                DateTime?
+  
+  @@index([status])
+  @@index([agentId])
+}
+
+model Payout {
+  id                    String   @id @default(cuid())
+  agentId               String
+  agent                 Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  amount                Float
+  currency              String   @default("USD")
+  
+  stripePayoutId        String?
+  status                PaymentStatus @default(PENDING)
+  taxForm1099Generated  Boolean  @default(false)
+  
+  createdAt             DateTime @default(now())
+  paidAt                DateTime?
+  
+  @@index([agentId])
+  @@index([status])
+}
+
+model Dispute {
+  id                String   @id @default(cuid())
+  taskAssignmentId  String   @unique
+  taskAssignment    TaskAssignment @relation(fields: [taskAssignmentId], references: [id], onDelete: Cascade)
+  
+  reason            String   @db.Text
+  evidence          Json     // { buyer: [...], agent: [...] }
+  
+  status            DisputeStatus @default(OPEN)
+  resolution        String?  @db.Text
+  refundAmount      Float?
+  payoutAmount      Float?
+  
+  raisedAt          DateTime @default(now())
+  resolvedAt        DateTime?
+  
+  @@index([status])
+}
+
+// ============================================================================
+// AUDIT & OBSERVABILITY MODELS
+// ============================================================================
+
+model AuditEvent {
+  id              String   @id @default(cuid())
+  eventType       String
+  
+  agentId         String?
+  agent           Agent?   @relation(fields: [agentId], references: [id])
+  
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  
+  taskId          String?
+  task            Task?    @relation(fields: [taskId], references: [id])
+  
+  payload         Json
+  
+  // Hash chain for tamper detection
+  previousHash    String?
+  currentHash     String
+  sequenceNumber  Int      @unique @default(autoincrement())
+  
+  timestamp       DateTime @default(now())
+  
+  @@index([eventType])
+  @@index([timestamp])
+  @@index([agentId])
+  @@index([userId])
+  @@index([taskId])
+  @@index([sequenceNumber])
+}
+
+model MerkleAnchor {
+  id              String   @id @default(cuid())
+  rootHash        String   @unique
+  
+  blockchainTxHash String?
+  blockNumber     BigInt?
+  
+  eventRangeStart Int      // Sequence number start
+  eventRangeEnd   Int      // Sequence number end
+  
+  anchoredAt      DateTime @default(now())
+  
+  @@index([rootHash])
+}
+
+// ============================================================================
+// DISCOVERY MODELS
+// ============================================================================
+
+model AgentListing {
+  id                String   @id @default(cuid())
+  agentId           String   @unique
+  agent             Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  title             String
+  shortDescription  String
+  longDescription   String   @db.Text
+  
+  category          String
+  tags              String[]
+  
+  pricingModel      PricingModel
+  basePrice         Float?
+  
+  featured          Boolean  @default(false)
+  verified          Boolean  @default(false)
+  
+  installCount      Int      @default(0)
+  avgRating         Float?
+  
+  lastActiveAt      DateTime @default(now())
+  
+  @@index([category])
+  @@index([featured])
+  @@index([verified])
+  @@index([avgRating])
+}
+
+model AgentReview {
+  id                String   @id @default(cuid())
+  agentId           String
+  agent             Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  buyerUserId       String
+  buyer             User     @relation(fields: [buyerUserId], references: [id], onDelete: Cascade)
+  
+  taskAssignmentId  String   @unique
+  taskAssignment    TaskAssignment @relation(fields: [taskAssignmentId], references: [id], onDelete: Cascade)
+  
+  rating            Int      // 1-5
+  review            String?  @db.Text
+  verifiedPurchase  Boolean  @default(true)
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([agentId])
+  @@index([buyerUserId])
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Platform {
+  N8N
+  ZAPIER
+  OPENAI
+  MAKE
+  WEBHOOK
+  NATIVE
+}
+
+enum AgentStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+enum UserRole {
+  BUYER
+  CREATOR
+  ADMIN
+}
+
+enum OrgRole {
+  ORG_ADMIN
+  BILLING_ADMIN
+  POLICY_ADMIN
+  AGENT_MANAGER
+  TASK_CREATOR
+  VIEWER
+}
+
+enum CredentialType {
+  SLA_30D
+  SLA_90D
+  KYC_VERIFIED
+  NO_PII_VIOLATIONS_90D
+  HIPAA_COMPLIANT
+  GDPR_COMPLIANT
+  SOC2_COMPLIANT
+  ORG_BINDING
+  CUSTOM
+}
+
+enum ScorePeriod {
+  DAYS_30
+  DAYS_90
+  DAYS_180
+  ALL_TIME
+}
+
+enum StakeStatus {
+  ACTIVE
+  SLASHED
+  WITHDRAWN
+}
+
+enum AuctionType {
+  SEALED_BID
+  VICKREY
+  DIRECT
+}
+
+enum TaskStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  ASSIGNED
+  EXECUTING
+  COMPLETED
+  DISPUTED
+  CANCELLED
+}
+
+enum BidStatus {
+  PENDING
+  REVEALED
+  WON
+  LOST
+  WITHDRAWN
+}
+
+enum AssignmentStatus {
+  ASSIGNED
+  EXECUTING
+  COMPLETED
+  FAILED
+  DISPUTED
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  TIMEOUT
+}
+
+enum PolicyDecisionType {
+  ALLOW
+  DENY
+}
+
+enum ApprovalType {
+  AGENT_INSTALLATION
+  HIGH_VALUE_TASK
+  POLICY_CHANGE
+  BUDGET_INCREASE
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+  SLASHED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+enum DisputeStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+enum PricingModel {
+  FIXED
+  HOURLY
+  AUCTION
+  SUBSCRIPTION
+}
+

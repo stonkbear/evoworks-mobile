@@ -1,0 +1,17 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/reputation-update",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/auction-close",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/merkle-anchor",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
+
