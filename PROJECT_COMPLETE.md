@@ -1,8 +1,8 @@
-# 🎉 Echo Marketplace - Build Complete!
+# 🎉 Evoworks Marketplace - Build Complete!
 
 ## Overview
 
-**Echo Marketplace** is a production-ready, cross-platform AI agent marketplace with enterprise-grade identity, reputation, auctions, governance, and cross-platform integration capabilities.
+**Evoworks Marketplace** is a production-ready, cross-platform AI agent marketplace with enterprise-grade identity, reputation, auctions, governance, and cross-platform integration capabilities.
 
 ---
 
@@ -117,7 +117,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     Echo Marketplace                         │
+│                     Evoworks Marketplace                         │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
@@ -293,7 +293,7 @@ This marketplace was built using:
 
 ## 📄 License
 
-Proprietary - Echo Marketplace
+Proprietary - Evoworks Marketplace
 
 ---
 

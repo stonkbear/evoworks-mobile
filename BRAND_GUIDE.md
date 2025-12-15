@@ -1,9 +1,9 @@
-# Echo Marketplace - Brand Identity Guide
+# Evoworks Marketplace - Brand Identity Guide
 
-## 🦇 Logo Concept: The Echo Bat
+## 🦇 Logo Concept: The Evoworks Bat
 
 ### Why a Bat?
-- **Echolocation Masters** - Bats literally use "echo" to navigate and hunt
+- **Evoworkslocation Masters** - Bats literally use "echo" to navigate and hunt
 - **Intelligence** - Sophisticated signal processing, adaptive behavior
 - **Network Effect** - Bats communicate in complex social networks
 - **Night Operations** - Aligns with dark theme aesthetic
@@ -15,17 +15,17 @@
 
 ### Primary Colors
 ```css
-Echo Black:      #0a0a0a  /* Deep black backgrounds */
-Echo Dark Grey:  #1a1a1a  /* Cards, elevated surfaces */
-Echo Grey:       #2a2a2a  /* Secondary surfaces */
-Echo Light Grey: #404040  /* Borders, dividers */
+Evoworks Black:      #0a0a0a  /* Deep black backgrounds */
+Evoworks Dark Grey:  #1a1a1a  /* Cards, elevated surfaces */
+Evoworks Grey:       #2a2a2a  /* Secondary surfaces */
+Evoworks Light Grey: #404040  /* Borders, dividers */
 ```
 
 ### Accent Colors
 ```css
-Echo Orange:       #ff6b35  /* Primary CTA, highlights, logo */
-Echo Orange Light: #ff8555  /* Hover states, glows */
-Echo Orange Dark:  #e55a2b  /* Active states, emphasis */
+Evoworks Orange:       #ff6b35  /* Primary CTA, highlights, logo */
+Evoworks Orange Light: #ff8555  /* Hover states, glows */
+Evoworks Orange Dark:  #e55a2b  /* Active states, emphasis */
 ```
 
 ### Text Colors
@@ -47,7 +47,7 @@ Info:     #3b82f6  /* Blue - information */
 
 ## 🦇 Logo Design Specifications
 
-### Primary Logo: "Echo Bat"
+### Primary Logo: "Evoworks Bat"
 **Style:** Geometric, minimalist, modern
 
 **Concept:**
@@ -83,7 +83,7 @@ Info:     #3b82f6  /* Blue - information */
 
 ### Design Elements
 - **Wings:** Angular, geometric (not realistic)
-- **Echo Waves:** 2-3 concentric circles behind bat
+- **Evoworks Waves:** 2-3 concentric circles behind bat
 - **Direction:** Bat facing right (forward motion)
 - **Animation:** Subtle pulse on hover (echo effect)
 
@@ -120,7 +120,7 @@ Use for: API keys, code snippets, technical data
 - Light mode is secondary
 - Orange provides vibrant contrast
 
-### 2. **Echo Pattern**
+### 2. **Evoworks Pattern**
 - Use concentric circles/waves as recurring motif
 - Apply to: loading states, hover effects, backgrounds
 - Represents: signal propagation, network effects
@@ -186,7 +186,7 @@ Placeholder: #737373
 
 ## 🌟 Signature Effects
 
-### "Echo Pulse" Animation
+### "Evoworks Pulse" Animation
 Used for: Loading states, active elements, notifications
 
 ```css
@@ -349,7 +349,7 @@ Failed:    Red icon
 
 ### Key Icons
 ```
-🦇 Bat:         Echo/Platform identity
+🦇 Bat:         Evoworks/Platform identity
 🔍 Search:      Discovery
 ⚡ Lightning:   Performance
 🛡️ Shield:      Security
@@ -401,7 +401,7 @@ Failed:    Red icon
    - Favicon: 16x16, 32x32, 192x192
 
 2. **Update Theme:**
-   - Tailwind config with Echo colors
+   - Tailwind config with Evoworks colors
    - CSS variables for dark mode
    - Component library with new styles
 
@@ -411,22 +411,22 @@ Failed:    Red icon
    - Documentation graphics
 
 4. **Animation Library:**
-   - Echo pulse effect
+   - Evoworks pulse effect
    - Sonar scan animation
    - Loading states
 
 ---
 
-## 🦇 The Echo Marketplace Difference
+## 🦇 The Evoworks Marketplace Difference
 
 **"Where Intelligence Meets Precision"**
 
-Just as bats navigate complex environments with perfect accuracy using echolocation, Echo Marketplace connects buyers with the perfect AI agents using sophisticated matching algorithms, trust scoring, and policy enforcement.
+Just as bats navigate complex environments with perfect accuracy using echolocation, Evoworks Marketplace connects buyers with the perfect AI agents using sophisticated matching algorithms, trust scoring, and policy enforcement.
 
-**Dark. Precise. Intelligent. Echo.**
+**Dark. Precise. Intelligent. Evoworks.**
 
 ---
 
-*Brand Guide v1.0 - Echo Marketplace*
-*The AI Agent Marketplace with Echolocation*
+*Brand Guide v1.0 - Evoworks Marketplace*
+*The AI Agent Marketplace with Evoworkslocation*
 

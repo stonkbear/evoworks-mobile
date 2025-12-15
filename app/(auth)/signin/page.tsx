@@ -1,14 +1,20 @@
 /**
  * Sign In Page
- * Echo Marketplace Authentication
+ * Evoworks Marketplace Authentication
  */
 
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
+
+const WaveBackground = dynamic(() => import('@/components/three/WaveBackground').then(mod => mod.WaveBackground), { ssr: false })
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-      {/* Background Echo Effect */}
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4 relative overflow-hidden">
+      {/* 3D Background */}
+      <WaveBackground />
+      
+      {/* Background Evoworks Effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <div className="w-[800px] h-[800px] rounded-full border border-[#ff6b35]/10 animate-pulse" />
@@ -23,7 +29,7 @@ export default function SignInPage() {
           <Link href="/" className="inline-flex items-center gap-3 group">
             <div className="text-5xl group-hover:scale-110 transition-transform">🦇</div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Echo</h1>
+              <h1 className="text-3xl font-bold text-white">Evoworks</h1>
               <p className="text-sm text-[#a3a3a3]">Marketplace</p>
             </div>
           </Link>
@@ -33,7 +39,7 @@ export default function SignInPage() {
         <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-8 shadow-xl">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-            <p className="text-[#a3a3a3]">Sign in to your Echo account</p>
+            <p className="text-[#a3a3a3]">Sign in to your Evoworks account</p>
           </div>
 
           <form className="space-y-4">

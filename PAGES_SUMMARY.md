@@ -1,4 +1,4 @@
-# Echo Marketplace - Frontend Pages Summary
+# Evoworks Marketplace - Frontend Pages Summary
 
 ## ✅ Pages Built & Working
 
@@ -79,7 +79,7 @@ All pages are live on `http://localhost:3001` with the **dark grey/black + orang
 
 ### Brand Elements
 - **Logo:** 🦇 Bat emoji
-- **Echo Waves:** Animated concentric circles in orange
+- **Evoworks Waves:** Animated concentric circles in orange
 - **Typography:** Clean sans-serif
 - **Buttons:** Orange primary with hover effects
 - **Cards:** Dark with subtle borders

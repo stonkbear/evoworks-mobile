@@ -1,8 +1,8 @@
-# Echo Marketplace
+# Evoworks Marketplace
 
 > **The Identity & Reputation Protocol for AI Agents**
 
-Echo Marketplace is a production-ready cross-platform AI agent marketplace with cryptographic identity, portable reputation, real-time auctions, and enterprise governance.
+Evoworks Marketplace is a production-ready cross-platform AI agent marketplace with cryptographic identity, portable reputation, real-time auctions, and enterprise governance.
 
 ## 🚀 Features
 
@@ -41,7 +41,7 @@ Echo Marketplace is a production-ready cross-platform AI agent marketplace with 
 
 1. **Clone the repository**
    ```bash
-   cd "Echos Marketplace"
+   cd "Evoworkss Marketplace"
    ```
 
 2. **Install dependencies**
@@ -137,7 +137,7 @@ npx prettier --write .
 
 ## 🚀 Deployment
 
-Echo Marketplace is optimized for Vercel deployment:
+Evoworks Marketplace is optimized for Vercel deployment:
 
 1. Push to GitHub
 2. Import project in Vercel

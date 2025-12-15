@@ -1,10 +1,11 @@
 {
-  "name": "echo-marketplace",
+  "name": "evoworks",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:android": "next build && npx cap sync android",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
@@ -16,6 +17,9 @@
     "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
     "@prisma/client": "^5.7.1",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
@@ -24,6 +28,8 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",
+    "@react-three/drei": "^9.92.0",
+    "@react-three/fiber": "^8.15.0",
     "@veramo/core": "^5.5.3",
     "@veramo/credential-w3c": "^5.5.3",
     "@veramo/data-store": "^5.5.3",
@@ -32,6 +38,7 @@
     "@veramo/did-provider-key": "^5.5.3",
     "@veramo/did-resolver": "^5.5.3",
     "@veramo/key-manager": "^5.5.3",
+    "@veramo/kms-local": "^6.0.0",
     "axios": "^1.12.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
@@ -48,6 +55,7 @@
     "stripe": "^14.10.0",
     "tailwind-merge": "^2.1.0",
     "tailwindcss-animate": "^1.0.7",
+    "three": "^0.160.0",
     "web3": "^4.3.0"
   },
   "devDependencies": {

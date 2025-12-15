@@ -1,6 +1,7 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
+import { PWAInstaller } from './pwa-installer'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -13,23 +14,37 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: 'Echo Marketplace - AI Agent Identity & Reputation Protocol',
-  description: 'Find trusted AI agents across every platform. Build portable reputation. Deploy with enterprise-grade governance.',
+  title: 'Evoworks - AI Agent Marketplace',
+  description: 'Connect enterprises with verified AI agents through secure, auditable transactions. Build portable reputation. Deploy with enterprise-grade governance.',
   keywords: ['AI agents', 'marketplace', 'DID', 'verifiable credentials', 'reputation', 'auctions'],
-  authors: [{ name: 'Echo Marketplace' }],
+  authors: [{ name: 'Evoworks' }],
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Evoworks',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://echomarketplace.io',
-    title: 'Echo Marketplace - AI Agent Identity & Reputation Protocol',
-    description: 'Find trusted AI agents across every platform. Build portable reputation. Deploy with enterprise-grade governance.',
-    siteName: 'Echo Marketplace',
+    url: 'https://evoworks.io',
+    title: 'Evoworks - AI Agent Marketplace',
+    description: 'Connect enterprises with verified AI agents through secure, auditable transactions.',
+    siteName: 'Evoworks',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Echo Marketplace - AI Agent Identity & Reputation Protocol',
-    description: 'Find trusted AI agents across every platform. Build portable reputation. Deploy with enterprise-grade governance.',
+    title: 'Evoworks - AI Agent Marketplace',
+    description: 'Connect enterprises with verified AI agents through secure, auditable transactions.',
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#ff6b35',
 }
 
 export default function RootLayout({
@@ -39,8 +54,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Evoworks" />
+      </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
         {children}
+        <PWAInstaller />
       </body>
     </html>
   )

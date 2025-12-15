@@ -1,4 +1,4 @@
-# Echo Marketplace - Build Summary
+# Evoworks Marketplace - Build Summary
 
 ## 🎉 **MILESTONE: 7/13 Prompts Complete (54%)**
 

@@ -55,7 +55,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2 group">
               <span className="text-2xl group-hover:scale-110 transition-transform">🦇</span>
-              <span className="text-xl font-bold text-white">Echo</span>
+              <span className="text-xl font-bold text-white">Evoworks</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">

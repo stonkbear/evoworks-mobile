@@ -1,4 +1,4 @@
-# Echo Marketplace - Deployment Guide
+# Evoworks Marketplace - Deployment Guide
 
 ## Prerequisites
 
@@ -223,5 +223,5 @@ For deployment issues, check:
 
 ---
 
-**Production Ready**: Echo Marketplace is built for scale with enterprise-grade security and reliability.
+**Production Ready**: Evoworks Marketplace is built for scale with enterprise-grade security and reliability.
 

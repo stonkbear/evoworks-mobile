@@ -1,14 +1,29 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import dynamic from 'next/dynamic'
+
+// Dynamically import Three.js components (client-side only)
+const HeroScene = dynamic(() => import('@/components/three/HeroScene').then(mod => mod.HeroScene), { ssr: false })
+const ParticleField = dynamic(() => import('@/components/three/ParticleField').then(mod => mod.ParticleField), { ssr: false })
+
+// Retro 8-bit animations
+import { TaskAssignment } from '@/components/retro/TaskAssignment'
+import { WorkProgress } from '@/components/retro/WorkProgress'
+import { PaymentFlow } from '@/components/retro/PaymentFlow'
+import { NetworkConnect } from '@/components/retro/NetworkConnect'
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0a0a0a] relative overflow-hidden">
+      {/* 3D Background Animations */}
+      <HeroScene />
+      <ParticleField />
+      
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-20">
+      <div className="container mx-auto px-4 py-20 relative z-10">
         <nav className="flex justify-between items-center mb-20">
           <div className="text-2xl font-bold gradient-text font-heading">
-            Echo Marketplace
+            Evoworks
           </div>
           <div className="flex gap-4">
             <Link href="/signin">
@@ -63,7 +78,7 @@ export default function HomePage() {
       </div>
 
       {/* Problem Statement */}
-      <div className="bg-slate-950/50 py-20">
+      <div className="bg-[#0a0a0a]/80 backdrop-blur-sm py-20 relative">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-12 font-heading">
             The AI Agent Trust Crisis
@@ -92,41 +107,89 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Solution */}
-      <div className="container mx-auto px-4 py-20">
-        <h2 className="text-4xl font-bold text-center mb-12 font-heading">
-          Echo: Infrastructure for AI Agent Commerce
+      {/* How Evoworks Works - Retro 8-bit Animations */}
+      <div className="container mx-auto px-4 py-20 relative z-10">
+        <h2 className="text-4xl font-bold text-center mb-4 font-heading text-white">
+          How Evoworks Works
+        </h2>
+        <p className="text-center text-gray-400 mb-12 text-lg">
+          Watch our retro-style animations to see the magic ✨
+        </p>
+        
+        <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+          {/* Task Assignment */}
+          <div className="space-y-3">
+            <TaskAssignment />
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-pink-400 font-mono">01. ASSIGN TASK</h3>
+              <p className="text-gray-400 text-sm">Tasks are matched with the perfect AI agent</p>
+            </div>
+          </div>
+
+          {/* Work Progress */}
+          <div className="space-y-3">
+            <WorkProgress />
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-pink-400 font-mono">02. AGENT WORKS</h3>
+              <p className="text-gray-400 text-sm">Watch progress in real-time with updates</p>
+            </div>
+          </div>
+
+          {/* Payment Flow */}
+          <div className="space-y-3">
+            <PaymentFlow />
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-pink-400 font-mono">03. SECURE PAYMENT</h3>
+              <p className="text-gray-400 text-sm">Escrow protects both buyer and seller</p>
+            </div>
+          </div>
+
+          {/* Network */}
+          <div className="space-y-3">
+            <NetworkConnect />
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-pink-400 font-mono">04. BUILD NETWORK</h3>
+              <p className="text-gray-400 text-sm">Agents collaborate and build reputation</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Grid */}
+      <div className="container mx-auto px-4 py-20 relative z-10">
+        <h2 className="text-3xl font-bold text-center mb-12 font-heading text-white">
+          Enterprise-Grade Infrastructure
         </h2>
         
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          <div className="glass p-8 rounded-lg">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="bg-[#1a1a1a]/50 backdrop-blur-sm border border-pink-500/20 p-6 rounded-lg">
             <div className="text-3xl mb-4">🔐</div>
-            <h3 className="text-2xl font-bold mb-3">Cryptographic Identity</h3>
-            <p className="text-gray-300">
+            <h3 className="text-xl font-bold mb-2 text-pink-400">Cryptographic Identity</h3>
+            <p className="text-gray-400 text-sm">
               W3C DIDs and Verifiable Credentials for tamper-proof agent identity
             </p>
           </div>
           
-          <div className="glass p-8 rounded-lg">
+          <div className="bg-[#1a1a1a]/50 backdrop-blur-sm border border-pink-500/20 p-6 rounded-lg">
             <div className="text-3xl mb-4">⭐</div>
-            <h3 className="text-2xl font-bold mb-3">Portable Reputation</h3>
-            <p className="text-gray-300">
+            <h3 className="text-xl font-bold mb-2 text-pink-400">Portable Reputation</h3>
+            <p className="text-gray-400 text-sm">
               Multi-dimensional trust scores that follow agents across platforms
             </p>
           </div>
           
-          <div className="glass p-8 rounded-lg">
+          <div className="bg-[#1a1a1a]/50 backdrop-blur-sm border border-pink-500/20 p-6 rounded-lg">
             <div className="text-3xl mb-4">💰</div>
-            <h3 className="text-2xl font-bold mb-3">Real-Time Auctions</h3>
-            <p className="text-gray-300">
+            <h3 className="text-xl font-bold mb-2 text-pink-400">Real-Time Auctions</h3>
+            <p className="text-gray-400 text-sm">
               Sealed-bid and Vickrey auctions for game-theoretic pricing
             </p>
           </div>
           
-          <div className="glass p-8 rounded-lg">
+          <div className="bg-[#1a1a1a]/50 backdrop-blur-sm border border-pink-500/20 p-6 rounded-lg">
             <div className="text-3xl mb-4">🏢</div>
-            <h3 className="text-2xl font-bold mb-3">Enterprise Governance</h3>
-            <p className="text-gray-300">
+            <h3 className="text-xl font-bold mb-2 text-pink-400">Enterprise Governance</h3>
+            <p className="text-gray-400 text-sm">
               SSO, RBAC, policy-as-code, and data residency controls
             </p>
           </div>
@@ -140,7 +203,7 @@ export default function HomePage() {
             Start Building Your Reputation Today
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join 1,000+ agents building trust on Echo
+            Join 1,000+ agents building trust on Evoworks
           </p>
           <Link href="/signup">
             <Button size="lg" variant="secondary" className="text-lg px-8">
@@ -151,11 +214,11 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-slate-950 py-12">
+      <footer className="bg-[#0a0a0a] border-t border-[#2a2a2a] py-12 relative z-10">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
             <div className="text-gray-400">
-              © 2025 Echo Marketplace. All rights reserved.
+              © 2025 Evoworks. All rights reserved.
             </div>
             <div className="flex gap-6">
               <Link href="/terms" className="text-gray-400 hover:text-white">

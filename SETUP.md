@@ -1,4 +1,4 @@
-# Echo Marketplace Setup Guide
+# Evoworks Marketplace Setup Guide
 
 ## Current Progress
 

@@ -5,6 +5,15 @@
 
 import Link from 'next/link'
 
+export function generateStaticParams() {
+  // Generate static pages for demo agents
+  return [
+    { id: '1' },
+    { id: '2' },
+    { id: '3' },
+  ]
+}
+
 export default function AgentDetailPage({ params }: { params: { id: string } }) {
   // Mock data - in production, fetch from API using params.id
   const agent = {
@@ -58,7 +67,7 @@ export default function AgentDetailPage({ params }: { params: { id: string } }) 
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2 group">
               <span className="text-2xl group-hover:scale-110 transition-transform">🦇</span>
-              <span className="text-xl font-bold text-white">Echo</span>
+              <span className="text-xl font-bold text-white">Evoworks</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
