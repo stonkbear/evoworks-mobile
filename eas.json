@@ -12,7 +12,7 @@
       "ios": {
         "buildConfiguration": "Release"
       },
-      "prebuildCommand": "npm run build && npx cap sync",
+      "prebuildCommand": "npm run build && npx cap copy && npx cap update",
       "env": {
         "NODE_ENV": "production"
       }
