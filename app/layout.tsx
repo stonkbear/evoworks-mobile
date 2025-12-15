@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { PWAInstaller } from './pwa-installer'
+import { Web3Provider } from '@/components/providers/Web3Provider'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -62,8 +63,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Evoworks" />
       </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
-        {children}
-        <PWAInstaller />
+        <Web3Provider>
+          {children}
+          <PWAInstaller />
+        </Web3Provider>
       </body>
     </html>
   )

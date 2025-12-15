@@ -6,6 +6,10 @@ import dynamic from 'next/dynamic'
 const HeroScene = dynamic(() => import('@/components/three/HeroScene').then(mod => mod.HeroScene), { ssr: false })
 const ParticleField = dynamic(() => import('@/components/three/ParticleField').then(mod => mod.ParticleField), { ssr: false })
 
+// Wallet components (client-side only)
+const WalletButton = dynamic(() => import('@/components/wallet').then(mod => mod.WalletButton), { ssr: false })
+const USDCBalance = dynamic(() => import('@/components/wallet').then(mod => mod.USDCBalance), { ssr: false })
+
 // Retro 8-bit animations
 import { TaskAssignment } from '@/components/retro/TaskAssignment'
 import { WorkProgress } from '@/components/retro/WorkProgress'
@@ -25,7 +29,9 @@ export default function HomePage() {
           <div className="text-2xl font-bold gradient-text font-heading">
             Evoworks
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
+            <USDCBalance />
+            <WalletButton />
             <Link href="/signin">
               <Button variant="ghost">Sign In</Button>
             </Link>
