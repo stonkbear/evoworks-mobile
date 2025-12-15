@@ -7,10 +7,14 @@
     "production": {
       "android": {
         "buildType": "app-bundle",
-        "withoutCredentials": false
+        "gradleCommand": ":app:bundleRelease"
       },
       "ios": {
         "buildConfiguration": "Release"
+      },
+      "prebuildCommand": "npm run build && npx cap sync",
+      "env": {
+        "NODE_ENV": "production"
       }
     }
   }
