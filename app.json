@@ -14,8 +14,8 @@
     },
     "ios": {
       "bundleIdentifier": "com.evoworks.app",
-      "buildNumber": "1.0.0",
-      "scheme": "App"
-    }
+      "buildNumber": "1.0.0"
+    },
+    "plugins": []
   }
 }
