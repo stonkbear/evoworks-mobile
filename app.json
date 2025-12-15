@@ -3,38 +3,17 @@
     "name": "Evoworks",
     "slug": "evoworks-mobile",
     "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./public/icon-512.png",
-    "userInterfaceStyle": "dark",
     "owner": "stonkbear",
-    "splash": {
-      "image": "./public/icon-512.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0a0a0a"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.evoworks.app"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./public/icon-512.png",
-        "backgroundColor": "#0a0a0a"
-      },
-      "package": "com.evoworks.app"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./public/icon-192.png"
-    },
     "extra": {
       "eas": {
         "projectId": "79862840-73a7-42ea-9de0-7743e6a06c63"
       }
+    },
+    "android": {
+      "package": "com.evoworks.app"
+    },
+    "ios": {
+      "bundleIdentifier": "com.evoworks.app"
     }
   }
 }
