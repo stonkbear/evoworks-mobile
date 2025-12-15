@@ -2,6 +2,10 @@
   "name": "evoworks",
   "version": "0.1.0",
   "private": true,
+  "overrides": {
+    "@types/react": "18.3.26",
+    "react-native": "0.76.5"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -45,6 +49,7 @@
     "clsx": "^2.0.0",
     "did-jwt": "^8.0.4",
     "did-resolver": "^4.1.0",
+    "eas-cli": "^16.28.0",
     "ethr-did-resolver": "^10.1.5",
     "framer-motion": "^10.16.16",
     "jose": "^5.2.0",
