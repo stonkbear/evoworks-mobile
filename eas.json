@@ -10,8 +10,7 @@
         "gradleCommand": ":app:bundleRelease"
       },
       "ios": {
-        "buildConfiguration": "Release",
-        "scheme": "App"
+        "buildConfiguration": "Release"
       },
       "prebuildCommand": "npm run build && npx cap sync",
       "env": {
