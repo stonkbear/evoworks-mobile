@@ -13,7 +13,7 @@
         "buildConfiguration": "Release",
         "scheme": "App"
       },
-      "prebuildCommand": "npm run build && npx cap sync android",
+      "prebuildCommand": "npm run build && npx cap sync",
       "env": {
         "NODE_ENV": "production"
       }
