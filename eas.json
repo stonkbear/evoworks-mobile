@@ -11,8 +11,9 @@
         "prebuildCommand": "npm run build && npx cap sync android"
       },
       "ios": {
+        "image": "macos-ventura-13.6-xcode-15.2",
         "buildConfiguration": "Release",
-        "prebuildCommand": "npm run build && npx cap sync ios && cd ios/App && xcodebuild -list"
+        "prebuildCommand": "npm run build && npx cap sync ios"
       },
       "env": {
         "NODE_ENV": "production"
