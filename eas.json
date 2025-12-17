@@ -13,6 +13,7 @@
       "ios": {
         "buildConfiguration": "Release",
         "scheme": "App",
+        "workspace": "ios/App/App.xcworkspace",
         "prebuildCommand": "npm run build && npx cap sync ios"
       },
       "env": {
