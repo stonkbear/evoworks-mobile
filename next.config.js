@@ -19,7 +19,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  
+
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
@@ -43,6 +43,19 @@ const nextConfig = {
         ],
       },
     ]
+  },
+
+  // Webpack config for pino compatibility
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      }
+    }
+    return config
   },
 }
 
