@@ -14,15 +14,8 @@
     },
     "ios": {
       "bundleIdentifier": "com.evoworks.app",
-      "buildNumber": "2.0.0"
+      "buildNumber": "2"
     },
     "plugins": []
-  },
-  "react-native-dir": "node_modules/react-native",
-  "ios": {
-    "sourceDir": "ios/App"
-  },
-  "android": {
-    "sourceDir": "android"
   }
 }
