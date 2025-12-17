@@ -17,5 +17,12 @@
       "buildNumber": "1.0.0"
     },
     "plugins": []
+  },
+  "react-native-dir": "node_modules/react-native",
+  "ios": {
+    "sourceDir": "ios/App"
+  },
+  "android": {
+    "sourceDir": "android"
   }
 }
