@@ -2,7 +2,7 @@
   "expo": {
     "name": "Evoworks",
     "slug": "evoworks-mobile",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "owner": "stonkbear",
     "extra": {
       "eas": {
@@ -14,7 +14,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.evoworks.app",
-      "buildNumber": "1.0.0"
+      "buildNumber": "2.0.0"
     },
     "plugins": []
   },
