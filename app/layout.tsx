@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { PWAInstaller } from './pwa-installer'
 import { Web3Provider } from '@/components/providers/Web3Provider'
+import { AuthProvider } from '@/components/providers/AuthProvider'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -63,10 +64,12 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Evoworks" />
       </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
+        <AuthProvider>
         <Web3Provider>
           {children}
           <PWAInstaller />
         </Web3Provider>
+        </AuthProvider>
       </body>
     </html>
   )

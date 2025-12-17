@@ -92,6 +92,7 @@ model User {
   approvalRequests  ApprovalRequest[] @relation("ApprovalRequester")
   approvals         ApprovalRequest[] @relation("Approver")
   auditEvents       AuditEvent[]
+  analyticsEvents   AnalyticsEvent[]
   
   @@index([email])
   @@index([role])
@@ -606,8 +607,403 @@ model AgentReview {
 }
 
 // ============================================================================
+// EVOWORKS MARKETPLACE MODELS (Ghost Flow Integration)
+// ============================================================================
+
+// Publisher profile - connects to Ghost Flow account
+model Publisher {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  
+  // Ghost Flow Integration
+  ghostFlowOrgId    String?  @unique  // Ghost Flow organization ID
+  ghostFlowApiKey   String?           // Encrypted API key for sync
+  
+  // Profile
+  displayName       String
+  slug              String   @unique  // URL-friendly name
+  bio               String?  @db.Text
+  avatarUrl         String?
+  websiteUrl        String?
+  twitterHandle     String?
+  githubHandle      String?
+  
+  // Verification
+  verified          Boolean  @default(false)
+  verifiedAt        DateTime?
+  
+  // Payout Configuration
+  payoutMethod      PayoutMethod @default(USDC)
+  payoutAddress     String?      // Wallet address for USDC/crypto
+  stripeAccountId   String?      // Stripe Connect account ID
+  
+  // Stats (denormalized for performance)
+  totalListings     Int      @default(0)
+  totalInstalls     Int      @default(0)
+  totalRevenue      Float    @default(0)
+  avgRating         Float?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  listings          MarketplaceListing[]
+  payouts           PublisherPayout[]
+  analyticsEvents   AnalyticsEvent[]
+  dailyStats        DailyStats[]
+  
+  @@index([slug])
+  @@index([ghostFlowOrgId])
+  @@index([verified])
+}
+
+// Marketplace Listing - supports all Ghost Flow creation types
+model MarketplaceListing {
+  id                  String   @id @default(cuid())
+  publisherId         String
+  publisher           Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  slug                String   @unique
+  name                String
+  shortDescription    String
+  longDescription     String   @db.Text
+  
+  // Type (from Ghost Flow)
+  type                ListingType
+  category            String
+  tags                String[]
+  
+  // Ghost Flow Reference
+  ghostFlowId         String?  // ID in Ghost Flow system
+  ghostFlowType       String?  // agent, workflow, swarm, etc.
+  ghostFlowConfig     Json?    // Exported config from Ghost Flow
+  
+  // Technical Details
+  supportedModels     String[] // ["gpt-4", "claude-3-opus", "gemini-pro"]
+  availableTools      String[] // ["http", "filesystem", "database"]
+  nodeCount           Int?     // For workflows/swarms
+  estimatedLatency    Int?     // Avg execution time in ms
+  
+  // Pricing
+  pricingModel        ListingPricingModel
+  priceAmount         Float?   // In cents for per-call, dollars for others
+  subscriptionMonthly Float?
+  subscriptionYearly  Float?
+  
+  // Media
+  coverImageUrl       String?
+  screenshotUrls      String[]
+  demoVideoUrl        String?
+  
+  // Status
+  status              ListingStatus @default(PENDING)
+  rejectionReason     String?
+  
+  // Verification
+  verificationLevel   VerificationLevel @default(NONE)
+  verifiedAt          DateTime?
+  
+  // Stats (denormalized)
+  viewCount           Int      @default(0)
+  installCount        Int      @default(0)
+  totalRevenue        Float    @default(0)
+  avgRating           Float?
+  reviewCount         Int      @default(0)
+  
+  // Timestamps
+  publishedAt         DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  // Relations
+  installs            ListingInstall[]
+  reviews             ListingReview[]
+  analyticsEvents     AnalyticsEvent[]
+  dailyStats          DailyStats[]
+  transactions        X402Transaction[]
+  
+  @@index([slug])
+  @@index([publisherId])
+  @@index([type])
+  @@index([category])
+  @@index([status])
+  @@index([pricingModel])
+  @@index([verificationLevel])
+  @@index([installCount])
+  @@index([avgRating])
+}
+
+// Track listing installations/purchases
+model ListingInstall {
+  id                String   @id @default(cuid())
+  listingId         String
+  listing           MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  
+  userId            String   // Buyer user ID
+  
+  // Install details
+  installedAt       DateTime @default(now())
+  uninstalledAt     DateTime?
+  
+  // For subscriptions
+  subscriptionId    String?
+  subscriptionEnds  DateTime?
+  
+  // Ghost Flow deployment reference
+  ghostFlowDeployId String?
+  
+  @@unique([listingId, userId])
+  @@index([listingId])
+  @@index([userId])
+}
+
+// Reviews for marketplace listings
+model ListingReview {
+  id                String   @id @default(cuid())
+  listingId         String
+  listing           MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  
+  userId            String   // Reviewer user ID
+  
+  rating            Int      // 1-5
+  title             String?
+  content           String?  @db.Text
+  
+  // Verification
+  verifiedPurchase  Boolean  @default(false)
+  
+  // Moderation
+  flagged           Boolean  @default(false)
+  flagReason        String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([listingId, userId])
+  @@index([listingId])
+  @@index([userId])
+  @@index([rating])
+}
+
+// x402 Micropayment Transactions
+model X402Transaction {
+  id                  String   @id @default(cuid())
+  listingId           String
+  listing             MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  
+  // Parties
+  buyerUserId         String
+  publisherId         String
+  
+  // Payment Details
+  amountCents         Int      // Amount in cents
+  currency            String   @default("USD")
+  
+  // x402 Protocol Fields
+  x402PaymentHash     String?  @unique // Payment hash for verification
+  x402Receipt         Json?    // Full receipt from payment processor
+  
+  // Blockchain/Crypto Details (if applicable)
+  chainId             Int?
+  txHash              String?
+  blockNumber         BigInt?
+  tokenAddress        String?  // For stablecoin payments
+  
+  // Execution Context
+  executionId         String?  // Ghost Flow execution ID
+  inputHash           String?  // Hash of execution input
+  outputHash          String?  // Hash of execution output
+  
+  status              TransactionStatus @default(PENDING)
+  failureReason       String?
+  
+  createdAt           DateTime @default(now())
+  completedAt         DateTime?
+  
+  @@index([listingId])
+  @@index([buyerUserId])
+  @@index([publisherId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Publisher payouts (aggregated from transactions)
+model PublisherPayout {
+  id                  String   @id @default(cuid())
+  publisherId         String
+  publisher           Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  
+  // Amount
+  grossAmount         Float    // Total before fees
+  platformFee         Float    // Evoworks platform fee
+  netAmount           Float    // Amount to publisher
+  currency            String   @default("USD")
+  
+  // Period
+  periodStart         DateTime
+  periodEnd           DateTime
+  
+  // Payout Method
+  method              PayoutMethod
+  destinationAddress  String?  // Wallet or bank details
+  
+  // Status
+  status              PayoutStatus @default(PENDING)
+  
+  // Blockchain/Payment Details
+  txHash              String?
+  stripePayoutId      String?
+  
+  processedAt         DateTime?
+  createdAt           DateTime @default(now())
+  
+  @@index([publisherId])
+  @@index([status])
+  @@index([periodEnd])
+}
+
+// ============================================================================
+// ANALYTICS MODELS
+// ============================================================================
+
+// Track individual events for time-series analytics
+model AnalyticsEvent {
+  id              String   @id @default(cuid())
+  
+  // Event type
+  eventType       AnalyticsEventType
+  
+  // References (at least one should be set)
+  listingId       String?
+  listing         MarketplaceListing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  publisherId     String?
+  publisher       Publisher? @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  userId          String?
+  user            User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  // Event data
+  metadata        Json?    // Additional event-specific data
+  
+  // Context
+  referrer        String?
+  userAgent       String?
+  country         String?
+  sessionId       String?
+  
+  // Revenue (for transaction events)
+  revenueAmount   Float?
+  revenueCurrency String?
+  
+  timestamp       DateTime @default(now())
+  
+  @@index([eventType])
+  @@index([listingId])
+  @@index([publisherId])
+  @@index([userId])
+  @@index([timestamp])
+  @@index([listingId, eventType, timestamp])
+  @@index([publisherId, eventType, timestamp])
+}
+
+// Daily aggregated stats for faster queries
+model DailyStats {
+  id              String   @id @default(cuid())
+  
+  date            DateTime @db.Date
+  
+  // Scope (one should be set)
+  listingId       String?
+  listing         MarketplaceListing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  publisherId     String?
+  publisher       Publisher? @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  
+  // Aggregated metrics
+  views           Int      @default(0)
+  uniqueViews     Int      @default(0)
+  installs        Int      @default(0)
+  uninstalls      Int      @default(0)
+  executions      Int      @default(0)
+  revenue         Float    @default(0)
+  
+  // Engagement
+  avgSessionDuration Float? // seconds
+  bounceRate      Float?   // percentage
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([date, listingId])
+  @@unique([date, publisherId])
+  @@index([date])
+  @@index([listingId, date])
+  @@index([publisherId, date])
+}
+
+// Platform-wide daily stats
+model PlatformDailyStats {
+  id              String   @id @default(cuid())
+  
+  date            DateTime @unique @db.Date
+  
+  // User metrics
+  totalUsers      Int      @default(0)
+  newUsers        Int      @default(0)
+  activeUsers     Int      @default(0)
+  
+  // Listing metrics
+  totalListings   Int      @default(0)
+  newListings     Int      @default(0)
+  activeListings  Int      @default(0)
+  
+  // Transaction metrics
+  totalTransactions Int    @default(0)
+  totalRevenue    Float    @default(0)
+  avgTransactionValue Float @default(0)
+  
+  // Engagement
+  totalViews      Int      @default(0)
+  totalInstalls   Int      @default(0)
+  totalExecutions Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([date])
+}
+
+// ============================================================================
 // ENUMS
 // ============================================================================
+
+enum AnalyticsEventType {
+  // Views
+  LISTING_VIEW
+  PUBLISHER_VIEW
+  
+  // Installs
+  LISTING_INSTALL
+  LISTING_UNINSTALL
+  
+  // Transactions
+  TRANSACTION_STARTED
+  TRANSACTION_COMPLETED
+  TRANSACTION_FAILED
+  
+  // Executions
+  EXECUTION_STARTED
+  EXECUTION_COMPLETED
+  EXECUTION_FAILED
+  
+  // Engagement
+  LISTING_SEARCH
+  LISTING_CLICK
+  REVIEW_SUBMITTED
+  
+  // Auth
+  USER_SIGNUP
+  USER_LOGIN
+}
 
 enum Platform {
   N8N
@@ -749,5 +1145,62 @@ enum PricingModel {
   HOURLY
   AUCTION
   SUBSCRIPTION
+}
+
+// ============================================================================
+// EVOWORKS MARKETPLACE ENUMS
+// ============================================================================
+
+enum ListingType {
+  AGENT
+  WORKFLOW
+  SWARM
+  KNOWLEDGE_PACK
+  TEMPLATE
+  INTEGRATION
+}
+
+enum ListingPricingModel {
+  FREE
+  PER_CALL        // x402 micropayments
+  SUBSCRIPTION
+  ONE_TIME
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING         // Awaiting review
+  ACTIVE
+  PAUSED
+  REJECTED
+  ARCHIVED
+}
+
+enum VerificationLevel {
+  NONE
+  BASIC           // Email verified
+  VERIFIED        // Full verification
+  PARTNER         // Official partner
+}
+
+enum PayoutMethod {
+  USDC            // USDC on Base/Ethereum
+  ETH             // Native ETH
+  STRIPE          // Traditional bank payout
+  PAYPAL
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
 }
 
